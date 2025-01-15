@@ -3,17 +3,19 @@
 class BaseResp<T>{
   int code;
   String message;
+  String? sid;
   T? data;
 
-  BaseResp(this.code, this.message, this.data);
+  BaseResp(this.code, this.message, this.sid, this.data);
 
   BaseResp.fromJson(Map<String, dynamic> json)
-      : code=json['code'],
-        message=json['message'],
-        data=json['data'];
+      : code=json['header']['code'],
+        message=json['header']['message'],
+        sid=json['header']['sid'],
+        data=json['payload']['result'];
 
   bool isSuccessWithData(){
-    return this.code == 0 && this.data != null;
+    return this.code == 0 && this.sid != null;
   }
 
   bool isSuccess(){
@@ -22,7 +24,7 @@ class BaseResp<T>{
 
   @override
   String toString() {
-    return 'BaseResp{code: $code, message: $message, data: $data}';
+    return 'BaseResp{code: $code, message: $message, sid: $sid}';
   }
 }
 

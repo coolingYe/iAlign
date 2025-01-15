@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:ialign/base/config/base_config.dart';
 import 'package:ialign/base/protocol/response/base_resp.dart';
 import 'package:ialign/base/repository/data_repository.dart';
+import 'package:ialign/data/ocr_respones.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:logger/logger.dart';
 
@@ -16,6 +20,17 @@ class MainController extends GetxController {
   final DataRepository _dataRepository =
       Get.find(tag: (DataRepository).toString());
   var imagePath = 'images/test.jpg';
+  var imageData = Uint8List(0).obs;
+  final ImagePicker picker = ImagePicker();
+
+
+  Future<void> pickImage() async {
+    final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+    if (pickedFile != null) {
+      imageData.value = Uint8List.fromList(File(pickedFile.path).readAsBytesSync());
+    }
+  }
 
   Future<void> requestOCR() async {
     String requestUrl = BaseConfig.request_url;
@@ -40,11 +55,20 @@ class MainController extends GetxController {
 
     String sha = base64Encode(signature.bytes);
     String authorization =
-        'api_key="${BaseConfig.api_key}", algorithm="hmac-sha256", headers="host date request-line", signature="$sha"';
+        'api_key="${BaseConfig.api_key}",algorithm="hmac-sha256",headers="host date request-line",signature="$sha"';
+    String authBase = base64Encode(utf8.encode(authorization));
     Map<String, dynamic> requestData = await getImageData();
-    _dataRepository.requestOCR(authorization, host, date, requestData).then(
+    _dataRepository.requestOCR(authBase, host, date, requestData).then(
         (BaseResp resp) async {
       if (resp.isSuccess()) {
+        Result result = Result.fromJson(resp.data);
+        String date = utf8.decode(base64Decode(result.text!));
+        Map<String,dynamic> jsonObject = jsonDecode(date);
+        List<dynamic> jsonTextList = jsonObject['pages'][0]['lines'];
+        for (var value in jsonTextList) {
+          logger.i(value['words'][0]['content']);
+        }
+
         logger.d('requestOCR is success');
       }
     }, onError: (err) {
@@ -82,7 +106,7 @@ class MainController extends GetxController {
     payload['sf8e6aca1_data_1'] = sf8e6aca1_data_1;
     sf8e6aca1_data_1['encoding'] = 'jpg';
     sf8e6aca1_data_1['status'] = 3;
-    sf8e6aca1_data_1['images'] = base64Image;
+    sf8e6aca1_data_1['image'] = base64Image;
 
     return req;
   }

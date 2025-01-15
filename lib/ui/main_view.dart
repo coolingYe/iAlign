@@ -7,11 +7,26 @@ class MainView extends GetView<MainController> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      TextButton(onPressed: () {
-        controller.requestOCR();
-      }, child: const Text('OCR'))
-    ],);
-  }
+    return GestureDetector(
+        child: Material(
+            color: Colors.transparent,
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              body: Stack(
+                children: [
+                  Obx(() =>
+                    controller.imageData.value.isEmpty
+                        ? Text('没有选择图片')
+                        : Image.memory(controller.imageData.value),
+                  ),
 
+                  SizedBox(
+                    height: 20,
+                  ),
+                  ElevatedButton(
+                      onPressed: controller.pickImage, child: Text('选择图片'))
+                ],
+              ),
+            )));
+  }
 }
