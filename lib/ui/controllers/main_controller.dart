@@ -22,13 +22,15 @@ class MainController extends GetxController {
   var imagePath = 'images/test.jpg';
   var imageData = Uint8List(0).obs;
   final ImagePicker picker = ImagePicker();
+  var content = ''.obs;
 
 
   Future<void> pickImage() async {
+    content.value = '';
     final XFile? pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       imageData.value = Uint8List.fromList(File(pickedFile.path).readAsBytesSync());
+      requestOCR();
     }
   }
 
@@ -67,6 +69,7 @@ class MainController extends GetxController {
         List<dynamic> jsonTextList = jsonObject['pages'][0]['lines'];
         for (var value in jsonTextList) {
           logger.i(value['words'][0]['content']);
+          content.value += value['words'][0]['content'] + '\n';
         }
 
         logger.d('requestOCR is success');
@@ -82,7 +85,7 @@ class MainController extends GetxController {
   }
 
   Future<Map<String, dynamic>> getImageData() async {
-    List<int> imageBytes = await readImage('images/test.jpg');
+    List<int> imageBytes = imageData.value;
     String base64Image = base64Encode(imageBytes);
 
     Map<String, dynamic> req = {};

@@ -10,17 +10,39 @@ class MainView extends GetView<MainController> {
     return GestureDetector(
         child: Material(
             color: Colors.transparent,
-            child: Scaffold(
-              backgroundColor: Colors.white,
-              body: Stack(
+            child: Container(
+              color: Colors.white,
+              child: Stack(
                 children: [
-                  Obx(() =>
-                    controller.imageData.value.isEmpty
-                        ? Text('没有选择图片')
-                        : Image.memory(controller.imageData.value),
+                  Row(
+                    children: [
+                      SizedBox(width: 700, height: 500, child:
+                      Obx(
+                        () => controller.imageData.value.isEmpty
+                            ? Text('没有选择图片')
+                            : Image.memory(controller.imageData.value,
+                                width: 700, height: 500),
+                      ),
+                      ),
+                      Container(
+                          width: 700,
+                          height: 500,
+                          decoration: BoxDecoration(
+                            // 背景色
+                            border: new Border.all(
+                                color: Color(0xFFFF0000), width: 0.5),
+                            borderRadius: BorderRadius.circular((8)),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(16),
+                            child: Obx(() => SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                padding: EdgeInsets.all(0),
+                                child: Text(controller.content.value))),
+                          ))
+                    ],
                   ),
-
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   ElevatedButton(

@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/iAlign.iml" filepath="$PROJECT_DIR$/.idea/iAlign.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android/ialign_android.iml" filepath="$PROJECT_DIR$/android/ialign_android.iml" />
     </modules>
   </component>
 </project>
